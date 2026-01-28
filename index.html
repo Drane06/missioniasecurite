@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mission IA : Checklist de Sécurité (Niveau Expert)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
+        
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #f8fafc;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .option-btn {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .option-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .animate-slide {
+            animation: slideIn 0.4s ease-out forwards;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-center p-4">
+
+    <div id="game-container" class="max-w-2xl w-full mb-8">
+        <!-- Écran d'accueil -->
+        <div id="start-screen" class="glass-card rounded-3xl p-8 shadow-2xl text-center animate-slide">
+            <div class="mb-6 inline-flex p-4 bg-blue-50 rounded-2xl text-blue-600">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-12 h-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                </svg>
+            </div>
+            <h1 class="text-3xl font-extrabold mb-4 gradient-text">IA & RGPD : Niveau Expert</h1>
+            <p class="text-slate-600 mb-8 leading-relaxed">
+                Au-delà des simples consignes, comprenez-vous les enjeux techniques et juridiques de l'IA en milieu scolaire ? Testez votre expertise.
+            </p>
+            <button onclick="startGame()" class="w-full bg-blue-600 text-white font-bold py-4 rounded-2xl hover:bg-blue-700 transition-colors shadow-lg shadow-blue-200">
+                Lancer le défi expert
+            </button>
+        </div>
+
+        <!-- Quiz principal -->
+        <div id="quiz-screen" class="hidden glass-card rounded-3xl p-8 shadow-2xl animate-slide">
+            <div class="flex justify-between items-center mb-6">
+                <span id="step-count" class="text-sm font-bold text-blue-600 bg-blue-50 px-3 py-1 rounded-full">Question 1/7</span>
+                <div class="flex gap-1" id="stars"></div>
+            </div>
+
+            <div class="w-full bg-slate-100 h-2 rounded-full mb-8 overflow-hidden">
+                <div id="progress-bar" class="h-full bg-blue-600 transition-all duration-500" style="width: 0%"></div>
+            </div>
+
+            <div id="question-box">
+                <h2 id="question-text" class="text-xl font-bold text-slate-800 mb-6 min-h-[3.5rem]">Chargement de la mission...</h2>
+                <div id="options-container" class="grid gap-3"></div>
+            </div>
+
+            <!-- Feedback -->
+            <div id="feedback" class="hidden mt-6 p-4 rounded-2xl border flex items-start gap-3">
+                <div id="feedback-icon" class="text-2xl"></div>
+                <div>
+                    <p id="feedback-title" class="font-bold mb-1"></p>
+                    <p id="feedback-text" class="text-sm leading-relaxed"></p>
+                    <button id="next-btn" onclick="nextQuestion()" class="mt-4 bg-slate-800 text-white text-sm font-bold px-6 py-2 rounded-xl hover:bg-slate-900 transition-colors">
+                        Question suivante
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Résultat final -->
+        <div id="result-screen" class="hidden glass-card rounded-3xl p-8 shadow-2xl text-center animate-slide">
+            <div id="result-emoji" class="text-6xl mb-4">🔬</div>
+            <h2 id="result-title" class="text-3xl font-extrabold mb-2 text-slate-800">Analyse terminée</h2>
+            <p id="result-msg" class="text-slate-600 mb-8"></p>
+            
+            <div class="bg-blue-50 rounded-2xl p-6 mb-8 inline-block w-full">
+                <div class="text-4xl font-black text-blue-600 mb-1" id="final-score">0/7</div>
+                <div class="text-blue-400 text-sm uppercase tracking-widest font-bold">Précision Technique</div>
+            </div>
+
+            <button onclick="resetGame()" class="w-full bg-blue-600 text-white font-bold py-4 rounded-2xl hover:bg-blue-700 transition-colors">
+                Recommencer l'évaluation
+            </button>
+        </div>
+    </div>
+
+    <!-- Footer de transparence -->
+    <footer class="flex items-center gap-2 text-slate-400 text-xs font-medium animate-slide">
+        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M12 2V4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M12 20V22" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M4.93 4.93L6.34 6.34" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M17.66 17.66L19.07 19.07" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M2 12H4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M20 12H22" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M6.34 17.66L4.93 19.07" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M19.07 4.93L17.66 6.34" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span>Page mise en forme avec une IA générative</span>
+    </footer>
+
+    <script>
+        const quizData = [
+            {
+                q: "Pourquoi l'utilisation de votre adresse mail personnelle (Gmail, Outlook) présente-t-elle un risque de 'Shadow Profiling' ?",
+                options: [
+                    "Parce que l'IA pourrait envoyer des spams à mes contacts.",
+                    "Parce que l'outil d'IA croise votre identité avec vos données de navigation et d'autres services tiers pour enrichir votre profil publicitaire.",
+                    "Parce que mon mot de passe académique est le même que mon mot de passe personnel."
+                ],
+                correct: 1,
+                tip: "L'utilisation d'une adresse perso permet aux GAFAM de relier vos requêtes professionnelles à votre profil de consommateur, créant un historique de données non cloisonné."
+            },
+            {
+                q: "Quelle est la différence fondamentale entre le stockage de vos échanges et l'entraînement du modèle ?",
+                options: [
+                    "Il n'y en a aucune, tout ce qui est stocké sert à l'entraînement.",
+                    "Le stockage est nécessaire pour l'historique ; l'entraînement est le processus où vos données servent à modifier les poids neuronaux de l'IA pour ses futures réponses.",
+                    "L'entraînement ne concerne que les images, pas les textes."
+                ],
+                correct: 1,
+                tip: "Un outil peut être 'RGPD-friendly' pour le stockage (données en Europe) mais problématique si les réglages par défaut utilisent vos textes pour améliorer le modèle (entraînement)."
+            },
+            {
+                q: "Juridiquement, pourquoi privilégier Mistral (France) à ChatGPT (USA) pour traiter des données scolaires ?",
+                options: [
+                    "Parce que Mistral parle mieux français.",
+                    "À cause du Cloud Act américain qui permet aux autorités US d'accéder aux données hébergées par des sociétés US, même si les serveurs sont physiquement en Europe.",
+                    "Parce que Mistral est gratuit pour tous les enseignants."
+                ],
+                correct: 1,
+                tip: "Le Cloud Act s'applique aux entreprises américaines partout dans le monde. Seules les solutions 100% souveraines (européennes) échappent à cette juridiction extra-territoriale."
+            },
+            {
+                q: "Que risque un enseignant qui saisit des données sensibles (santé, handicap) dans une IA sans contrat de sous-traitance (DPA) ?",
+                options: [
+                    "Une simple remarque administrative.",
+                    "Sa responsabilité juridique personnelle engagée en cas de fuite de données, car il a agi hors du cadre de confiance de son employeur.",
+                    "Rien, car le RGPD ne s'applique pas à l'Intelligence Artificielle."
+                ],
+                correct: 1,
+                tip: "L'Article 9 du RGPD interdit le traitement de données sensibles sans garanties strictes. Sans validation académique, l'enseignant est seul responsable du traitement effectué."
+            },
+            {
+                q: "Quel danger représente la 'Shadow IA' (IA de l'ombre) au sein d'un établissement scolaire ?",
+                options: [
+                    "L'utilisation d'IA qui génèrent des images de mauvaise qualité.",
+                    "L'usage d'outils non validés par l'institution, créant des failles de sécurité où les données des élèves circulent sans aucun contrôle RGPD ni protection juridique.",
+                    "Le fait d'utiliser une IA sans que les élèves s'en aperçoivent."
+                ],
+                correct: 1,
+                tip: "La Shadow IA empêche le DPO de garantir la protection des données. Si un outil n'est pas répertorié, l'institution ne peut pas protéger l'agent en cas de cyberattaque ou de litige."
+            },
+            {
+                q: "Vous utilisez Gamma pour créer un diaporama. Quel est le risque si vous y insérez votre propre cours original ?",
+                options: [
+                    "L'outil peut s'approprier les droits d'auteur de votre cours.",
+                    "Vos méthodes pédagogiques peuvent être intégrées à la base de connaissances de l'IA et générées pour d'autres utilisateurs sans mention de votre nom.",
+                    "Le fichier sera automatiquement supprimé après 24h."
+                ],
+                correct: 1,
+                tip: "Le 'Droit d'opposition' concerne aussi votre propriété intellectuelle. En acceptant les CGU, vous concédez souvent une licence d'utilisation de vos contenus pour l'entraînement."
+            },
+            {
+                q: "Comment interpréter la 'transparence' demandée par le MEN vis-à-vis des élèves ?",
+                options: [
+                    "Il suffit de dire oralement qu'on a utilisé une IA.",
+                    "Il faut expliquer aux élèves quels outils sont utilisés, pourquoi, et quelles données (anonymes) ont été transmises pour respecter leur droit à l'information.",
+                    "C'est une option facultative réservée aux professeurs de technologie."
+                ],
+                correct: 1,
+                tip: "La transparence est une obligation légale (Art. 13 RGPD). Les élèves doivent savoir que l'IA intervient dans leur processus d'apprentissage."
+            }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+
+        function startGame() {
+            document.getElementById('start-screen').classList.add('hidden');
+            document.getElementById('quiz-screen').classList.remove('hidden');
+            showQuestion();
+        }
+
+        function showQuestion() {
+            const data = quizData[currentQuestion];
+            document.getElementById('step-count').innerText = `Question ${currentQuestion + 1}/${quizData.length}`;
+            document.getElementById('question-text').innerText = data.q;
+            document.getElementById('progress-bar').style.width = `${((currentQuestion) / quizData.length) * 100}%`;
+            
+            const optionsContainer = document.getElementById('options-container');
+            optionsContainer.innerHTML = '';
+            
+            data.options.forEach((opt, index) => {
+                const btn = document.createElement('button');
+                btn.className = "option-btn text-left p-4 rounded-2xl border-2 border-slate-100 hover:border-blue-500 hover:bg-blue-50 text-slate-700 font-semibold transition-all leading-snug";
+                btn.innerText = opt;
+                btn.onclick = () => selectOption(index);
+                optionsContainer.appendChild(btn);
+            });
+
+            document.getElementById('feedback').classList.add('hidden');
+        }
+
+        function selectOption(index) {
+            const data = quizData[currentQuestion];
+            const feedback = document.getElementById('feedback');
+            const btns = document.querySelectorAll('.option-btn');
+            
+            btns.forEach(b => b.disabled = true);
+            
+            feedback.classList.remove('hidden');
+            const icon = document.getElementById('feedback-icon');
+            const title = document.getElementById('feedback-title');
+            const text = document.getElementById('feedback-text');
+
+            if (index === data.correct) {
+                score++;
+                btns[index].classList.replace('border-slate-100', 'border-green-500');
+                btns[index].classList.add('bg-green-50');
+                feedback.className = "mt-6 p-4 rounded-2xl border bg-green-50 border-green-200 flex items-start gap-3 text-green-800 animate-slide";
+                icon.innerHTML = '🎯';
+                title.innerText = "Expertise confirmée";
+            } else {
+                btns[index].classList.replace('border-slate-100', 'border-red-500');
+                btns[index].classList.add('bg-red-50');
+                btns[data.correct].classList.add('bg-green-50', 'border-green-500');
+                feedback.className = "mt-6 p-4 rounded-2xl border bg-orange-50 border-orange-200 flex items-start gap-3 text-orange-800 animate-slide";
+                icon.innerHTML = '⚖️';
+                title.innerText = "Analyse juridique :";
+            }
+            text.innerText = data.tip;
+        }
+
+        function nextQuestion() {
+            currentQuestion++;
+            if (currentQuestion < quizData.length) {
+                showQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function showResults() {
+            document.getElementById('quiz-screen').classList.add('hidden');
+            document.getElementById('result-screen').classList.remove('hidden');
+            
+            const finalScore = document.getElementById('final-score');
+            const title = document.getElementById('result-title');
+            const emoji = document.getElementById('result-emoji');
+            const msg = document.getElementById('result-msg');
+
+            finalScore.innerText = `${score}/${quizData.length}`;
+
+            if (score === quizData.length) {
+                emoji.innerText = '🛡️';
+                title.innerText = "Délégué à la Protection (DPO) !";
+                msg.innerText = "Votre compréhension technique et juridique est parfaite. Vous êtes un pilier pour la sécurité des données de votre établissement.";
+            } else if (score >= 5) {
+                emoji.innerText = '🎓';
+                title.innerText = "Expert Praticien";
+                msg.innerText = "Vous maîtrisez les enjeux majeurs, y compris les risques de la Shadow IA.";
+            } else {
+                emoji.innerText = '⚠️';
+                title.innerText = "Vigilance requise";
+                msg.innerText = "L'usage des IA présente des risques invisibles. Une relecture approfondie du cadre MEN est recommandée avant d'aller plus loin.";
+            }
+        }
+
+        function resetGame() {
+            currentQuestion = 0;
+            score = 0;
+            document.getElementById('result-screen').classList.add('hidden');
+            document.getElementById('start-screen').classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>
